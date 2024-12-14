@@ -84,12 +84,26 @@ pub fn solve_part_one<'a>(input: Vec<Robot>) -> String {
     (quad_1_count * quad_2_count * quad_3_count * quad_4_count).to_string()
 }
 
+fn print_tree(robot_positions: &HashSet<(usize, usize)>) {
+    for y in 0..ROOM_HEIGHT as usize {
+        for x in 0..ROOM_WIDTH as usize {
+            if robot_positions.contains(&(x, y)) {
+                print!("#");
+            } else {
+                print!(".");
+            }
+        }
+        print!("\n");
+    }
+}
+
 pub fn solve_part_two<'a>(input: Vec<Robot>) -> String {
     let mut robots = input;
 
     let mut second = 0;
     loop {
         second += 1;
+
         let mut robot_positions = HashSet::new();
         for robot in robots.iter_mut() {
             let new_x = ((robot.pos_x as i64) + robot.vel_x) % ROOM_WIDTH;
@@ -106,6 +120,7 @@ pub fn solve_part_two<'a>(input: Vec<Robot>) -> String {
         }
 
         if robot_positions.len() == robots.len() {
+            print_tree(&robot_positions);
             break;
         }
     }
