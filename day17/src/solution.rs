@@ -173,6 +173,7 @@ pub fn solve_part_two<'a>(input: Input) -> String {
     let mut min_a = 0;
     let mut max_a = 0;
     let expected_size = input.program.len() * 2;
+
     loop {
         let output = run_program(i, 0, 0, &input.program);
         if output.len() < expected_size {
@@ -189,30 +190,34 @@ pub fn solve_part_two<'a>(input: Input) -> String {
 
     println!("A must be between {min_a} {max_a}");
 
-    loop {
-        let chunk_size = (max_a - min_a) / 10;
-        i = min_a;
-        println!("Testing {min_a} - {max_a} (chunk_size {chunk_size})");
-        loop {
-            let output = run_program(i, 0, 0, &input.program);
-            if output.len() < expected_size {
-                min_a = i;
-            }
+    let raw_program_nums = input
+        .raw_program
+        .split(",")
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
 
-            if output.len() >= expected_size {
-                max_a = i;
-                break;
-            }
-            i += chunk_size;
+    i = min_a;
+    let chunk_size = (max_a - min_a) / 10;
+    loop {
+        let output = run_program(i, 0, 0, &input.program);
+
+        if output.last() != raw_program_nums.last() {
+            min_a = i;
         }
 
-        if chunk_size < 10 {
+        if output.last() == raw_program_nums.last() {
+            max_a = i;
             break;
         }
+
+        i += chunk_size;
     }
 
-    for i in 0..10 {
-        let output = run_program(min_a + i, 0, 0, &input.program);
+    println!("A is between {min_a} and {max_a}");
+    return String::new();
+
+    for num in min_a..max_a {
+        let output = run_program(num, 0, 0, &input.program);
         let joined = output.join(",");
         println!("Comparing \"{joined}\" == \"{}\"", input.raw_program);
         if joined == input.raw_program {
