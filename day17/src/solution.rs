@@ -169,61 +169,33 @@ pub fn solve_part_one<'a>(input: Input) -> String {
 }
 
 pub fn solve_part_two<'a>(input: Input) -> String {
-    let mut i = 1;
-    let mut min_a = 0;
-    let mut max_a = 0;
-    let expected_size = input.program.len() * 2;
-
-    loop {
-        let output = run_program(i, 0, 0, &input.program);
-        if output.len() < expected_size {
-            min_a = i;
-        }
-
-        if output.len() > expected_size {
-            max_a = i;
-            break;
-        }
-
-        i *= 2;
-    }
-
-    println!("A must be between {min_a} {max_a}");
-
     let raw_program_nums = input
         .raw_program
         .split(",")
         .map(|s| s.to_string())
         .collect::<Vec<_>>();
 
-    i = min_a;
-    let chunk_size = (max_a - min_a) / 10;
-    loop {
-        let output = run_program(i, 0, 0, &input.program);
+    let mut facts = vec![0; raw_program_nums.len()];
 
-        if output.last() != raw_program_nums.last() {
-            min_a = i;
+    let ans = loop {
+        let mut ia = 0;
+        for (i, f) in facts.iter().enumerate() {
+            ia += 8i64.pow(i as u32) * f;
         }
 
-        if output.last() == raw_program_nums.last() {
-            max_a = i;
-            break;
+        let output = run_program(ia, 0, 0, &input.program);
+
+        if output == raw_program_nums {
+            break ia;
         }
 
-        i += chunk_size;
-    }
-
-    println!("A is between {min_a} and {max_a}");
-    return String::new();
-
-    for num in min_a..max_a {
-        let output = run_program(num, 0, 0, &input.program);
-        let joined = output.join(",");
-        println!("Comparing \"{joined}\" == \"{}\"", input.raw_program);
-        if joined == input.raw_program {
-            return i.to_string();
+        for i in (0..raw_program_nums.len()).rev() {
+            if output.len() < i || output[i] != raw_program_nums[i] {
+                facts[i] += 1;
+                break;
+            }
         }
-    }
+    };
 
-    panic!("No solution");
+    ans.to_string()
 }
